@@ -136,13 +136,10 @@ function siguientefase(fase){
         io.emit("textoDerecha",2,fase,0,ganadorEnvites[fase-1],[0,0])
         enviteAnterior[fase-1]=0;
         sumarFase=sumarFase+1;
-        console.log("Esta es la fase antes del tiempo de espera",fase)
         setTimeout(() => {
           fase=fase-1;
-          console.log("Esta es la fase dentro del tiempo de espera",fase)
         fase=siguientefase(fase);
         },2000);
-        console.log("Esta es la fase después del tiempo de espera",fase)
       } else if(numConPares==1){
         io.emit("pares1Jugador",turno);
         enviteAnterior[fase-1]=0;
@@ -154,13 +151,10 @@ function siguientefase(fase){
         }
         io.emit("textoDerecha",1,fase,0,ganadorEnvites[fase-1],[0,0])
         sumarFase=sumarFase+1;
-        console.log("Esta es la fase antes del tiempo de espera",fase)
         setTimeout(() => {
           fase=fase-1;
-          console.log("Esta es la fase dentro del tiempo de espera",fase)
         fase=siguientefase(fase);
         },2000);
-        console.log("Esta es la fase después del tiempo de espera",fase)
       } else{
         //Si los jugadores con pares son del mismo equipo
         if (numConPares==2 && (numConParesA==0 || numConParesA==2)){
@@ -173,13 +167,10 @@ function siguientefase(fase){
           io.emit("textoDerecha",1,fase,0,ganadorEnvites[fase-1],[0,0])
           io.emit("pares1Equipo",ganaEnvites(siguienteturno(turno)));
           sumarFase=sumarFase+1;
-          console.log("Esta es la fase antes del tiempo de espera",fase)
         setTimeout(() => {
           fase=fase-1;
-          console.log("Esta es la fase dentro del tiempo de espera",fase)
         fase=siguientefase(fase);
         },2000);
-        console.log("Esta es la fase después del tiempo de espera",fase)
         } else{
           io.emit("turno","setApuestas",turno,fase,punto);
         }
@@ -259,10 +250,8 @@ function siguientefase(fase){
       }
     }
   }
-  console.log("Esta es la fase antes de sumar fase",fase)
   fase=fase+sumarFase;
   sumarFase=0;
-  console.log("Esta es la fase después de sumar fase",fase);
   return fase
 }
 //Para descartar
@@ -428,7 +417,6 @@ console.log("los pares son",paresAnalizados)
 
   for (let j=1; j<5; j++){  //Vamos a barrer las fases del juego
     if (envites[j-1]!=0){ //Esto es al paso o en envite
-      console.log("Hay que decidir ganador en fase",j);
       let numComb=2;
       let ganador=1;  //Inicialmente supongo que el ganador es el primero.
       let mejorCarta=1;
@@ -477,11 +465,9 @@ console.log("los pares son",paresAnalizados)
             k=4; //Para que se acabe el bucle
           } else if (mejorCarta==1){ //en el caso de pares hay que buscar 
           // la pareja más alta
-          console.log("Tenemos que buscar la pareja más alta");
             for (let l=1; l<5; l++){  //l recorre los jugadores
               let ParejaHallada=0;
               const mano=manos[claves[l-1]];
-              console.log("Estas son las manos");
               for (m=1; m<4; m++){
                 for (n=m+1; n<5; n++){
                   if (ParejaHallada==0 && mano[m-1].numero==mano[n-1].numero){
@@ -495,11 +481,17 @@ console.log("los pares son",paresAnalizados)
           }
         } else if (j==4){
           mejoresCarta=juegosAnalizados;
+          for (let m=1; m<5;  m++){
+            if (mejoresCarta[m-1]==31){
+              mejoresCarta[m-1]=42;
+            } else if (mejoresCarta[m-1]==32){
+              mejoresCarta[m-1]=41;
+            }
+          }
           k=4;  //Esto es para que se acabe el bucle
         }
         mejorCarta=mejoresCarta[ganador-1]; //fijo que la mejor carta es la primera
         //y comparo con el resto de jugadores
-        console.log("En principio estas son las mejores cartas",mejoresCarta,"y esta la mejor carta",mejorCarta)
         for (let l=2; l<5; l++){  //l recorre los jugadores
         if (mejoresCarta[l-1]>mejorCarta && combatientes[l-1]==1){
           mejorCarta=mejoresCarta[l-1];
@@ -508,7 +500,6 @@ console.log("los pares son",paresAnalizados)
           combatientes[l-1]=0;
         }
         }
-        console.log("Vamos a ver cómo van los combatientes",combatientes)
         //Actualizo número de combatientes y la primera carta a mirar
         numComb=0;
         for (let l=4; l>0; l--){
@@ -517,7 +508,6 @@ console.log("los pares son",paresAnalizados)
             ganador=l;
           }
         }
-        console.log("el número de combatientes es",numComb)
         }
         //Hay que deshacer el cambio para chica para no alterar el bucle
         if (j==2){
@@ -527,7 +517,6 @@ console.log("los pares son",paresAnalizados)
       //Lo normal sería que tuviéramos ganador, pero en ocasiones ocurre que 
       // dos jugadores tienen la misma mano y toca desempatar. Analicemos esta situación
       if (numComb>1){
-        console.log("Hay que decidir ganador en la fase",j,"por mano");
         //El ganador es el más cercano a la mano, necesito barrer mínimo 3 veces
         ganador=mano1;
         for (let l=1; l<5; l++){
@@ -537,10 +526,8 @@ console.log("los pares son",paresAnalizados)
             ganador=siguienteturno(ganador);
           }
         }
-        console.log("El ganador es",ganador);
       }
       ganadorEnvites[j-1]=ganaEnvites(siguienteturno(ganador));
-      console.log("El ganador es",ganador,"y el equipo ganador es",ganadorEnvites[j-1]);
       enviteAnterior[j-1]=envites[j-1];
       //Lo sumo al marcador
       if (ganadorEnvites[j-1]==1){
@@ -550,8 +537,6 @@ console.log("los pares son",paresAnalizados)
         marcadorB=marcadorB+envites[j-1];
         io.emit("marcadorB",marcadorB);
       }
-      console.log("En la fase",j,"el marcadorA es", marcadorA)
-      console.log("En la fase",j,"el marcadorB es", marcadorB)
       analizarMarcador(marcadorA,marcadorB)
       //Y ahora lo cambio en el panel de la derecha
       io.emit("textoDerecha",1,j,envites[j-1],ganadorEnvites[j-1],[0,0]);
@@ -559,6 +544,8 @@ console.log("los pares son",paresAnalizados)
       console.log("sin disputa a",j);
     }
     if (j==3){  //TOCA SUMAR POR PARES Y JUEGO
+      paresAnalizados=analisispares(manos);
+      console.log("los pares analizados han sido",paresAnalizados)
       if (ganadorEnvites[j-1]==1){
         marcadorA=marcadorA+paresAnalizados[0]+paresAnalizados[2];
         io.emit("marcadorA",marcadorA);
@@ -569,12 +556,9 @@ console.log("los pares son",paresAnalizados)
         io.emit("marcadorB",marcadorB);
         io.emit("textoDerecha",1,3,enviteAnterior[j-1],2,[paresAnalizados[1],paresAnalizados[3]])
       }
-      console.log("En la fase",j,"el marcadorA es", marcadorA)
-      console.log("En la fase",j,"el marcadorB es", marcadorB)
       analizarMarcador(marcadorA,marcadorB)
     }
     else if (j==4){
-      console.log("Los juegos analizados son",juegosAnalizados)
       if (ganadorEnvites[j-1]==1){
         let extras=[0,0];
         if (juegosAnalizados[0]==31){
@@ -623,8 +607,6 @@ console.log("los pares son",paresAnalizados)
         //Actualizo la información de la derecha
         io.emit("textoDerecha",1,4,enviteAnterior[j-1],2,extras)
       }
-      console.log("En la fase",j,"el marcadorA es", marcadorA)
-      console.log("En la fase",j,"el marcadorB es", marcadorB)
       analizarMarcador(marcadorA,marcadorB)
     }
   }
@@ -958,7 +940,6 @@ io.on("connection", (socket) => {
     if (envidando>1){
       enviteAnterior[fase-1]=envites[fase-1];
     }
-    console.log("Es la fase",fase);
     envite1=envites[fase-1]+envite1;
     envites[fase-1]=envite1;
     if (fase<3){
@@ -1087,6 +1068,9 @@ io.on("connection", (socket) => {
       siguienteMano=[0,0,0,0];
       paresAnalizados=[1,1,1,1];
       enviteAnterior=[1,1,1,1];
+      envites=[0, 0,  0, 0];  
+      ganadorEnvites=[0, 0, 0, 0];
+      descartes=[];
       //Al comenzar nueva mano debo borrar el texto de la derecha
       io.emit("borrarTextoDerecha");
       io.emit("turno","setMus",turno,fase,punto);
@@ -1104,13 +1088,13 @@ io.on("connection", (socket) => {
 
 
 //Si lo ejecuto localmente
-//server.listen(3000, () => {
-  //console.log("Servidor en http://localhost:3000");
-//});
+server.listen(3000, () => {
+  console.log("Servidor en http://localhost:3000");
+});
 
 
 //Si lo ejecuto en internet
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
-});
+//const PORT = process.env.PORT || 3000;
+//server.listen(PORT, () => {
+  //console.log(`Servidor escuchando en puerto ${PORT}`);
+//});
