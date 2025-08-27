@@ -1,0 +1,61 @@
+body {
+    background-color: #b6fcb6; /* verde claro */
+    margin: 0; /* para que ocupe toda la pantalla */
+    font-family: Arial, sans-serif;
+}
+#titulo-mus {
+    text-align: center;      /* centra el texto */
+    font-size: 72px;         /* tamaño grande */
+    font-weight: bold;       /* negrita */
+    margin-top: 20px;        /* separación desde arriba */
+    color: #ffffff;          /* color blanco, puedes cambiarlo */
+    text-shadow: 2px 2px 4px #000000; /* sombra para destacar */
+}
+
+#tablero {
+  display: grid;
+  grid-template-areas:
+    "baraja4 jugador3 jugador3 baraja3 Marcador"
+    "jugador4 mesa mesa jugador2 Marcador"
+    "jugador4 mesa mesa jugador2 Marcador"
+    "baraja1 jugador1 jugador1 baraja2 Marcador" ;
+  grid-template-columns: 2fr 2fr 2fr 2fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  height: 70vh;
+  gap: 5px;
+}
+
+#jugador-1 { grid-area: jugador1; text-align: center; }
+#jugador-2 { grid-area: jugador2; text-align: center; }
+#jugador-3 { grid-area: jugador3; text-align: center; }
+#jugador-4 { grid-area: jugador4; text-align: center; }
+#baraja-1 { grid-area: baraja1; text-align: center; }
+#baraja-2 { grid-area: baraja2; text-align: center; }
+#baraja-3 { grid-area: baraja3; text-align: center; }
+#baraja-4 { grid-area: baraja4; text-align: center; }
+#mesa { 
+  grid-area: mesa; 
+  background-color: #c36908; 
+  border-radius: 10px; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  position:relative;
+}
+#marcadores{ grid-area: Marcador; text-align: center;}
+
+.botones-set {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+#accion {
+  text-align: center;   /* Centra el texto horizontalmente */
+  margin-top: 20px;     /* Espacio desde arriba */
+  font-size: 24px;      /* Tamaño grande */
+}
+
+.carta { border: 2px solid transparent; cursor: pointer; }
+.carta.seleccionada { border: 2px solid black; }

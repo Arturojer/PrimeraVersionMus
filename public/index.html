@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<link rel="stylesheet" href="estilos.css">
+<head>
+  <meta charset="UTF-8">
+  <title>Mus Online</title>
+</head>
+<body>
+  <h3 id="titulo-mus">MUS ONLINE</h3>
+  <div id="tablero">
+    <div id="baraja-1" classs="baraja" style="display: none;">
+      <img src="imagenes/reverso.jpg" alt="Carta reverso" width="60 px">
+    </div>
+    <div id="baraja-2" classs="baraja" style="display: none;">
+      <img src="imagenes/reverso.jpg" alt="Carta reverso" width="60 px">
+    </div>
+    <div id="baraja-3" classs="baraja" style="display: none;">
+      <img src="imagenes/reverso.jpg" alt="Carta reverso" width="60 px">
+    </div>
+    <div id="baraja-4" classs="baraja" style="display: none;">
+      <img src="imagenes/reverso.jpg" alt="Carta reverso" width="60 px">
+    </div>
+    <div id="jugador-1" class="jugador" style="display: none;">
+      <span class="nombre-jugador"> Jugador 1</span>
+      <div id="cartas-jugador1" class="cartas"></div>
+    </div>
+    <div id="jugador-2" class="jugador" style="display: none;">
+      <span class="nombre-jugador"> Jugador 2</span>
+      <div id="cartas-jugador2" class="cartas"></div>
+    </div>
+    <div id="jugador-3" class="jugador" style="display: none;">
+      <span class="nombre-jugador"> Jugador 3</span>
+      <div id="cartas-jugador3" class="cartas"></div>
+    </div>
+    <div id="jugador-4" class="jugador" style="display: none;">
+      <span class="nombre-jugador"> Jugador 4</span>
+      <div id="cartas-jugador4" class="cartas"></div>
+    </div>
+    <div id="marcadores">
+        Equipo A: jugadores 1,3<br>
+        Equipo B: jugadores 2,4<br>
+        <table border="1">
+          <tr>
+            <td> </td>
+            <td>Juegos</td>
+            <td>Puntos</td>
+          </tr>
+          <tr>
+            <td>A</td>
+            <td id="juegosA">0</td>
+            <td id="puntosA">0</td>
+          </tr>
+          <tr>
+            <td>B</td>
+            <td id="juegosB">0</td>
+            <td id="puntosB">0</td>
+          </tr>
+        </table>
+        Grande: <span id="textoGrande" style="display: none;"></span> <br>
+        Chica: <span id="textoChica" style="display: none;"></span> <br>
+        Tienen pares: <span id="textoTienenPares" style="display: none;"></span> <br>
+        Pares: <span id="textoPares" style="display: none;"></span> <br>
+        Tienen Juego: <span id="textoTienenJuego" style="display: none;"></span> <br>
+        Juego: <span id="textoJuego" style="display: none;"></span> 
+      </div>
+    <div id="mesa">
+      <h3 id="accion">Esperando a todos los jugadores</h3>
+      <!--Escribo los sets de botones--->
+      <!-- Set 1: Mus / Corto -->
+      <div id="setMus" class="botones-set" style="display: none;">
+        <button id="botonMus" class="boton" disabled>Mus</button>
+        <button id="botonCorto" class="boton" disabled>Corto</button>
+        <button id="botonEnvido" class="boton" disabled>Envido</button>
+        <button id="botonEnvidoMas" class="boton" disabled>Envido +</button>
+      </div>
+      <!-- Set 2: Apuestas -->
+      <div id="setApuestas" class="botones-set" style="display: none;">
+        <button id="botonPaso" class="boton" disabled>Paso</button>
+        <button id="botonEnvido2" class="boton" disabled>Envido</button>
+        <button id="botonEnvidoMas2" class="boton" disabled>Envido+</button>
+      </div>
+      <!-- Set 3: CerrarApuestas-->
+      <div id="setCerrarApuestas" class="botones-set" style="display: none;">
+        <button id="botonQuiero" class="boton" disabled> Quiero</button>
+        <button id="botonNoQuiero" class="boton" disabled> No quiero</button>
+        <button id="botonEnvidoMas3"class="boton" disabled> Envido+</button>
+      </div>
+      <!-- Set 4: Envido + -->
+      <div id="setEnvido" class="botones-set" style="display: none;">
+        <button id="botonEnvido24" class="boton" >2</button>
+        <button id="botonEnvido5" class="boton">5</button>
+        <button id="botonOrdago" class="boton">Órdago</button>
+        <input type="number" id="numero-apuesta" placeholder="Número" min="2" max="40"  step="1">
+      </div>
+      <!-- Set 5: Descartes-->
+      <div id="setDescartes" class="botones-set" style="display: none;">
+        <button id="botonDescarte" class="boton" >descartar</button>
+      </div>
+      <!-- Set 6: Siguiente Mano-->
+      <div id="setSiguienteMano" class="botones-set" style="display: none;">
+        <button id="botonSiguienteMano" class="boton" >Siguiente mano</button>
+      </div>
+    </div>
+  </div>
+  <!-- Script del cliente (con Socket.io) -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
