@@ -14,9 +14,9 @@ const palos = ["oros", "copas", "espadas", "bastos"];
 const numeros = [1,2,3,4,5,6,7,10,11,12];
 
 // Esto es para crear el juego para 4 usuarios
-let contturno=0;
 let jugadores = []; // lista de sockets
 let manos = {};     // {socket.id: [cartas]}
+let contturno=0;
 let turno = 0;
 let baraja=crearBaraja();
 let mano=0;  //Para guardar quién es la mano
@@ -777,13 +777,13 @@ console.log("los pares son",paresAnalizados)
         juegosA=juegosA+1;
         io.emit("juegosA",juegosA);
         if (juegosA==3){
-          io.emit("JuegoTerminado",1);
+          io.emit("juegoTerminado",1);
         }
       } else if (ganadorEnvites[j-1]==2){
         juegosB=juegosB+1;
         io.emit("juegosB",juegosB);
         if (juegosB==3){
-          io.emit("JuegoTerminado",2);
+          io.emit("juegoTerminado",2);
         }
       }
 }
@@ -824,8 +824,41 @@ io.on("connection", (socket) => {
   if (jugadores.length < 4) {
     jugadores.push(socket);
   }
-
   if (jugadores.length === 4) {
+    manos = {};     // {socket.id: [cartas]}
+    contturno=0;
+    turno = 0;
+    baraja=crearBaraja();
+    mano=0;  //Para guardar quién es la mano
+    Mus1=1; //Establece si es el primer mus
+    fase=0; //Fase 0 es mus, 1 es grande, 2 es chica, 3 pares, 4 juego, 5 resultados
+    descartes=new Array(4);
+    cartasDescartadas=[];
+    envites=[0, 0,  0, 0];  //0 indicará al paso, 1 envites no aceptados y los demás números 
+    // las cantidades del envite
+    ganadorEnvites=[0, 0, 0, 0];  //1 indica ganan 1,3 y 2 indica ganan 2,4.  0 es ganador por definir
+    jugadorQueEnvida=0; 
+    envidando=false; //Indica si se está envidando
+    noquieros=0;
+    marcadorA=0;
+    marcadorB=0;
+    paresAnalizados=[];
+    juegosAnalizados=[];
+    siPares=[];
+    siJuego=[];
+    numConPares=0; 
+    numConParesA=0;
+    numConJuego=0;
+    numConJuegoA=0;
+    punto=0;
+    siguienteMano=[0,0,0,0];
+    enviteAnterior=[1,1,1,1];
+    ordago=0;
+    juegosA=0;
+    juegosB=0;
+    juegoAcabado=0; 
+    sumarFase=0;
+
     console.log("Ya somos 4 jugadores");
     io.emit("ComienzoJuego")
     setTimeout(() => {  //Esto es para establecer un tiempo
@@ -844,7 +877,6 @@ io.on("connection", (socket) => {
       },1500);
     }, 1500); // espera 1.5 segundos
   }
-
   socket.on("Mus2",() =>{
     contturno=contturno+1;
     turno=siguienteturno(turno)
@@ -865,12 +897,10 @@ io.on("connection", (socket) => {
       io.emit("turno","setDescartes",turno,fase,punto)
     }
   });
-
   socket.on("cortandoMus2",(turno) => {
     Mus1=0;
     io.emit("cortandoMus1",turno);
   });
-
   socket.on("cortoMus2",() =>{
     Mus1=0;
     fase=siguientefase(fase);
@@ -905,7 +935,6 @@ io.on("connection", (socket) => {
       fase=siguientefase(fase);
     }
   });
-
   socket.on("descarte2",(descarte)=>{
     contturno=contturno+1;
     descartes[turno-1]=descarte;
@@ -918,7 +947,6 @@ io.on("connection", (socket) => {
       io.emit("turno","setDescartes",turno,fase,punto)
     }
   });
-
   socket.on("envite2",(envite1) =>{
     Mus1=0;
     envidando=envidando+1;
@@ -952,7 +980,6 @@ io.on("connection", (socket) => {
     }
     io.emit("envite1",envite1,turno,jugadorQueEnvida,fase)
   });
-  
   socket.on("ordago2",() =>{
     Mus1=0;
     envidando=envidando+1;
@@ -986,7 +1013,6 @@ io.on("connection", (socket) => {
     ordago=1;
     io.emit("ordago1",turno,jugadorQueEnvida,fase)
   });
-
   socket.on("quiero2",()=>{
     envidando=0;
     noquieros=0;
@@ -999,7 +1025,6 @@ io.on("connection", (socket) => {
     fase=siguientefase(fase);
     }
   })
-
   socket.on("noQuiero2",() =>{
     noquieros=noquieros+1;
     //En el caso de pares o juego puede que el otro compañero no tenga,
@@ -1078,7 +1103,14 @@ io.on("connection", (socket) => {
 })
 
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
+
+server.listen(3000, () => {
+  console.log("Servidor en http://localhost:3000");
 });
+
+
+//Si lo ejecuto en internet
+//const PORT = process.env.PORT || 3000;
+//server.listen(PORT, () => {
+  //console.log(`Servidor escuchando en puerto ${PORT}`);
+//});

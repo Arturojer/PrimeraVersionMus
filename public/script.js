@@ -42,7 +42,6 @@ barraSuperior.appendChild(mensajeIzq);
 // Creo el mensaje derecho
 const mensajeDer = document.createElement("div");
 barraSuperior.appendChild(mensajeDer);
-
 //Esto es el manejo de los botones
 const BotonCorto = document.getElementById("botonCorto");
 BotonCorto.addEventListener("click", () => {
@@ -418,7 +417,6 @@ socket.on("sinPares",()=>{
     div.style.display = "none";
   });
 })
-
 socket.on("sinJuego",()=>{
   console.log("nadie tiene juego");
   accion.style.fontSize="24px";
@@ -648,7 +646,7 @@ socket.on("juegoTerminado",(ganador) =>{
   if (ganador==1){
     textGanador="A"
   }
-  accion.textContent="EL EQUIPO" + textGanador + "HA GANADO";
+  accion.textContent="EL EQUIPO " + textGanador + " HA GANADO";
   accion.style.fontSize="30px";
 })
 socket.on("mostrarManos",(manos)  =>{
