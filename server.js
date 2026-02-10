@@ -8,6 +8,10 @@ const io = new Server(server);
 
 app.use(express.static("public"));
 
+const { QuantumCard, EntanglementSystem, QuantumDeck } = require('./quantum');
+
+// Room management
+const rooms = {}; // { roomCode: { players: [{socket, nombre}], gameStarted: false } }
 
 // Palos y números de las cartas del Mus
 const palos = ["oros", "copas", "espadas", "bastos"];
@@ -49,6 +53,9 @@ let juegosB=0;
 let juegoAcabado=0; 
 let sumarFase=0;
 
+let entanglementSystem = null;
+let gameMode = '8'; // '4' or '8' reyes
+
 // Crear baraja completa
 function crearBaraja() {
   const baraja = [];
@@ -78,6 +85,21 @@ function repartirCartas(){
   cartasDescartadas=[];
   return baraja
 }
+
+// Mark entangled cards in player hands with quantum info
+function addQuantumInfo(manos) {
+  if (!entanglementSystem) return;
+  for (const id in manos) {
+    manos[id].forEach((carta) => {
+      if (entanglementSystem.isCardEntangled(carta.numero, carta.palo)) {
+        const partner = entanglementSystem.getPartnerCard(carta.numero, carta.palo);
+        carta.isEntangled = true;
+        carta.entangledPartner = partner;
+      }
+    });
+  }
+}
+
 //Pasar turno 
 function siguienteturno(turnoAc){
   if (turnoAc==4){
@@ -797,6 +819,67 @@ function analizarMarcador(marcadorA,marcadorB){
   }
 }
 
+function generateRoomCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+function initializeGame() {
+  manos = {};
+  contturno=0;
+  turno = 0;
+  baraja=crearBaraja();
+  mano=0;
+  Mus1=1;
+  fase=0;
+  descartes=new Array(4);
+  cartasDescartadas=[];
+  envites=[0, 0,  0, 0];
+  ganadorEnvites=[0, 0, 0, 0];
+  jugadorQueEnvida=0;
+  envidando=false;
+  noquieros=0;
+  marcadorA=0;
+  marcadorB=0;
+  paresAnalizados=[];
+  juegosAnalizados=[];
+  siPares=[];
+  siJuego=[];
+  numConPares=0;
+  numConParesA=0;
+  numConJuego=0;
+  numConJuegoA=0;
+  punto=0;
+  siguienteMano=[0,0,0,0];
+  enviteAnterior=[1,1,1,1];
+  ordago=0;
+  juegosA=0;
+  juegosB=0;
+  juegoAcabado=0;
+  sumarFase=0;
+  entanglementSystem = new EntanglementSystem(gameMode);
+
+  console.log("Ya somos 4 jugadores");
+  io.emit("ComienzoJuego")
+  setTimeout(() => {
+    mano=Math.floor(Math.random()*4)+1;
+    turno=mano;
+    io.emit("TurnoInicial",turno);
+    baraja=repartirCartas();
+    addQuantumInfo(manos);
+    io.emit("colocarBaraja",mano);
+    setTimeout(() => {
+      io.emit("juegoComenzado")
+      io.emit("turno","setMus",turno,fase,punto);
+      io.emit("colocarBaraja",mano);
+    },1500);
+  }, 1500);
+}
+
 io.on("connection", (socket) => {
   console.log("¡Jugador conectado!", socket.id);
   const numeroJugador = jugadores.length + 1;
@@ -807,58 +890,64 @@ io.on("connection", (socket) => {
     jugadores.push(socket);
   }
   if (jugadores.length === 4) {
-    manos = {};     // {socket.id: [cartas]}
-    contturno=0;
-    turno = 0;
-    baraja=crearBaraja();
-    mano=0;  //Para guardar quién es la mano
-    Mus1=1; //Establece si es el primer mus
-    fase=0; //Fase 0 es mus, 1 es grande, 2 es chica, 3 pares, 4 juego, 5 resultados
-    descartes=new Array(4);
-    cartasDescartadas=[];
-    envites=[0, 0,  0, 0];  //0 indicará al paso, 1 envites no aceptados y los demás números 
-    // las cantidades del envite
-    ganadorEnvites=[0, 0, 0, 0];  //1 indica ganan 1,3 y 2 indica ganan 2,4.  0 es ganador por definir
-    jugadorQueEnvida=0; 
-    envidando=false; //Indica si se está envidando
-    noquieros=0;
-    marcadorA=0;
-    marcadorB=0;
-    paresAnalizados=[];
-    juegosAnalizados=[];
-    siPares=[];
-    siJuego=[];
-    numConPares=0; 
-    numConParesA=0;
-    numConJuego=0;
-    numConJuegoA=0;
-    punto=0;
-    siguienteMano=[0,0,0,0];
-    enviteAnterior=[1,1,1,1];
-    ordago=0;
-    juegosA=0;
-    juegosB=0;
-    juegoAcabado=0; 
-    sumarFase=0;
-
-    console.log("Ya somos 4 jugadores");
-    io.emit("ComienzoJuego")
-    setTimeout(() => {  //Esto es para establecer un tiempo
-      //Ahora se escoje aleatoriamente el jugador que empieza
-      mano=Math.floor(Math.random()*4)+1;
-      //Envio el mensaje a los usuarios
-      turno=mano;
-      io.emit("TurnoInicial",turno);
-      //Reparto las cartas
-      baraja=repartirCartas();
-      io.emit("colocarBaraja",mano);
-      setTimeout(() => {
-        io.emit("juegoComenzado")
-        io.emit("turno","setMus",turno,fase,punto);
-        io.emit("colocarBaraja",mano);
-      },1500);
-    }, 1500); // espera 1.5 segundos
+    initializeGame();
   }
+
+  // Room/lobby management
+  socket.on('crearSala', (data) => {
+    const codigo = generateRoomCode();
+    rooms[codigo] = { 
+      players: [{ socket, nombre: data.nombre }], 
+      gameStarted: false 
+    };
+    socket.join(codigo);
+    socket.roomCode = codigo;
+    socket.emit('salaCreada', { codigo });
+    io.to(codigo).emit('jugadorUnido', { 
+      jugadores: rooms[codigo].players.map(p => ({ nombre: p.nombre })),
+      codigo 
+    });
+  });
+
+  socket.on('unirseSala', (data) => {
+    const room = rooms[data.codigo];
+    if (!room) {
+      socket.emit('errorSala', { mensaje: 'Sala no encontrada' });
+      return;
+    }
+    if (room.players.length >= 4) {
+      socket.emit('errorSala', { mensaje: 'Sala llena' });
+      return;
+    }
+    if (room.gameStarted) {
+      socket.emit('errorSala', { mensaje: 'Partida ya iniciada' });
+      return;
+    }
+    room.players.push({ socket, nombre: data.nombre });
+    socket.join(data.codigo);
+    socket.roomCode = data.codigo;
+    io.to(data.codigo).emit('jugadorUnido', { 
+      jugadores: room.players.map(p => ({ nombre: p.nombre })),
+      codigo: data.codigo 
+    });
+  });
+
+  socket.on('iniciarPartida', (data) => {
+    const room = rooms[data.codigo];
+    if (!room) {
+      socket.emit('errorSala', { mensaje: 'Sala no encontrada' });
+      return;
+    }
+    if (room.players.length < 4) {
+      socket.emit('errorSala', { mensaje: 'Se necesitan 4 jugadores para iniciar' });
+      return;
+    }
+    room.gameStarted = true;
+    jugadores = room.players.map(p => p.socket);
+    initializeGame();
+    io.to(data.codigo).emit('iniciarJuego');
+  });
+
   socket.on("Mus2",() =>{
     contturno=contturno+1;
     turno=siguienteturno(turno)
@@ -1087,14 +1176,7 @@ io.on("connection", (socket) => {
 })
 
 
-//Si lo ejecuto localmente
-server.listen(3000, () => {
-  console.log("Servidor en http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Servidor QuantuMus en http://localhost:${PORT}`);
 });
-
-
-//Si lo ejecuto en internet
-//const PORT = process.env.PORT || 3000;
-//server.listen(PORT, () => {
-  //console.log(`Servidor escuchando en puerto ${PORT}`);
-//});
