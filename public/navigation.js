@@ -107,7 +107,11 @@
     // 2. Name → Menu (creates socket)
     document.getElementById('btn-continuar').addEventListener('click', function () {
       var name = document.getElementById('input-nombre').value.trim();
-      if (!name) return;
+      if (!name) {
+        document.getElementById('input-nombre').style.borderColor = '#ff6b6b';
+        return;
+      }
+      document.getElementById('input-nombre').style.borderColor = '';
       window.QuantumMusState.playerName = name;
       ensureSocket();
       showScreen('menu');
@@ -127,7 +131,11 @@
     // 5. Code → Join room → Lobby
     document.getElementById('btn-unirse-sala').addEventListener('click', function () {
       var code = document.getElementById('input-codigo').value.trim().toUpperCase();
-      if (!code) return;
+      if (!code) {
+        document.getElementById('input-codigo').style.borderColor = '#ff6b6b';
+        return;
+      }
+      document.getElementById('input-codigo').style.borderColor = '';
       window.QuantumMusState.roomCode = code;
       var socket = ensureSocket();
       socket.emit('unirseSala', {

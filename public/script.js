@@ -5,6 +5,8 @@ function getSocket() {
 }
 const socket = getSocket();
 
+const GAME_OVER_DELAY_MS = 3000;
+
 //INICIEMOS VARIABLES QUE LLEVAN EL TRASCURSO DEL JUEGO
 let miMano; //Inicio la mano del jugador
 let numeroJugador;  //ESto es para tener el número de jugador
@@ -657,7 +659,7 @@ socket.on("juegoTerminado",(ganador) =>{
     if (titulo) titulo.textContent = "¡Victoria Cuántica!";
     if (winner) winner.textContent = "Ha ganado el equipo " + textGanador;
     if (window.showScreen) window.showScreen("gameover");
-  }, 3000);
+  }, GAME_OVER_DELAY_MS);
 })
 socket.on("mostrarManos",(manos)  =>{
   console.log("Se deberían mostrar las manos de todos los jugadores");

@@ -820,10 +820,11 @@ function analizarMarcador(marcadorA,marcadorB){
 }
 
 function generateRoomCode() {
+  const crypto = require('crypto');
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
   for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
+    code += chars.charAt(crypto.randomInt(chars.length));
   }
   return code;
 }
@@ -895,9 +896,13 @@ io.on("connection", (socket) => {
 
   // Room/lobby management
   socket.on('crearSala', (data) => {
+    if (!data || typeof data.nombre !== 'string' || !data.nombre.trim()) {
+      socket.emit('errorSala', { mensaje: 'Nombre inválido' });
+      return;
+    }
     const codigo = generateRoomCode();
     rooms[codigo] = { 
-      players: [{ socket, nombre: data.nombre }], 
+      players: [{ socket, nombre: data.nombre.trim() }], 
       gameStarted: false 
     };
     socket.join(codigo);
@@ -910,6 +915,14 @@ io.on("connection", (socket) => {
   });
 
   socket.on('unirseSala', (data) => {
+    if (!data || typeof data.codigo !== 'string' || !data.codigo.trim()) {
+      socket.emit('errorSala', { mensaje: 'Código inválido' });
+      return;
+    }
+    if (typeof data.nombre !== 'string' || !data.nombre.trim()) {
+      socket.emit('errorSala', { mensaje: 'Nombre inválido' });
+      return;
+    }
     const room = rooms[data.codigo];
     if (!room) {
       socket.emit('errorSala', { mensaje: 'Sala no encontrada' });
@@ -923,7 +936,7 @@ io.on("connection", (socket) => {
       socket.emit('errorSala', { mensaje: 'Partida ya iniciada' });
       return;
     }
-    room.players.push({ socket, nombre: data.nombre });
+    room.players.push({ socket, nombre: data.nombre.trim() });
     socket.join(data.codigo);
     socket.roomCode = data.codigo;
     io.to(data.codigo).emit('jugadorUnido', { 
@@ -933,6 +946,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on('iniciarPartida', (data) => {
+    if (!data || typeof data.codigo !== 'string' || !data.codigo.trim()) {
+      socket.emit('errorSala', { mensaje: 'Código inválido' });
+      return;
+    }
     const room = rooms[data.codigo];
     if (!room) {
       socket.emit('errorSala', { mensaje: 'Sala no encontrada' });
