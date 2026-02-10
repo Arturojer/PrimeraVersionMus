@@ -1,7 +1,7 @@
 //const { text } = require("express");
 
 // Conectar con el servidor
-const socket = io();
+const socket = window.socket || io();
 
 //INICIEMOS VARIABLES QUE LLEVAN EL TRASCURSO DEL JUEGO
 let miMano; //Inicio la mano del jugador
