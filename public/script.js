@@ -125,10 +125,19 @@ const inputNumero = document.getElementById("numero-apuesta");
 inputNumero.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {   // Si la tecla pulsada es Enter
     let valor = parseInt(inputNumero.value);
+    if (isNaN(valor) || valor < 2 || valor > 40) return;
     socket.emit("envite2",valor)
   }
 });
 //FUNCIONES AUXILIARES
+const VALID_NUMEROS = [1,2,3,4,5,6,7,10,11,12];
+const VALID_PALOS = ['oros','copas','espadas','bastos'];
+function safeCardSrc(numero, palo) {
+  if (VALID_NUMEROS.includes(Number(numero)) && VALID_PALOS.includes(String(palo))) {
+    return `imagenes/${numero}-${palo}.jpg`;
+  }
+  return `imagenes/reverso.jpg`;
+}
 // Para mostrar la mano del jugador
 function mostrarMano() {
   //Muestro mi mano
@@ -137,7 +146,7 @@ function mostrarMano() {
 
   miMano.forEach((carta, indice) => {
     const img = document.createElement("img");
-    img.src = `imagenes/${carta.numero}-${carta.palo}.jpg`;
+    img.src = safeCardSrc(carta.numero, carta.palo);
     img.style.width = "60px";
     img.className="carta";
 
@@ -671,7 +680,7 @@ socket.on("mostrarManos",(manos)  =>{
   const mano=manos[claves[j-1]];
   mano.forEach((carta, indice) => {
     const img = document.createElement("img");
-    img.src = `imagenes/${carta.numero}-${carta.palo}.jpg`;
+    img.src = safeCardSrc(carta.numero, carta.palo);
     img.style.width = "60px";
     img.className="carta";
 
