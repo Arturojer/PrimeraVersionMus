@@ -1,7 +1,9 @@
-//const { text } = require("express");
-
-// Conectar con el servidor
-const socket = window.socket || io();
+// Conectar con el servidor (reuse the socket created by navigation.js, or create one)
+function getSocket() {
+  if (!window.socket) { window.socket = io(); }
+  return window.socket;
+}
+const socket = getSocket();
 
 //INICIEMOS VARIABLES QUE LLEVAN EL TRASCURSO DEL JUEGO
 let miMano; //Inicio la mano del jugador
@@ -648,6 +650,14 @@ socket.on("juegoTerminado",(ganador) =>{
   }
   accion.textContent="EL EQUIPO " + textGanador + " HA GANADO";
   accion.style.fontSize="30px";
+  // Show the game over screen after a short delay
+  setTimeout(() => {
+    var titulo = document.getElementById("gameover-title");
+    var winner = document.getElementById("gameover-winner");
+    if (titulo) titulo.textContent = "¡Victoria Cuántica!";
+    if (winner) winner.textContent = "Ha ganado el equipo " + textGanador;
+    if (window.showScreen) window.showScreen("gameover");
+  }, 3000);
 })
 socket.on("mostrarManos",(manos)  =>{
   console.log("Se deberían mostrar las manos de todos los jugadores");

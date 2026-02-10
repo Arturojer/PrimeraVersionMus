@@ -45,10 +45,14 @@
   window.showScreen = showScreen;
 
   // ── Socket helpers ──
+  var socketBound = false;
   function ensureSocket() {
     if (!window.socket) {
       window.socket = io();
+    }
+    if (!socketBound) {
       bindSocketEvents(window.socket);
+      socketBound = true;
     }
     return window.socket;
   }
